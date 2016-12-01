@@ -8,9 +8,13 @@ import re
 import glob
 from macpath import dirname
 import shutil
+from enum import Enum
+
+
+regExPatterns = {'Samsung':'^([0-9]{8})'}
 
 #To find Samsung-format string
-dateFinder = re._compile('^([0-9]{8})', 0)
+dateFinder = re._compile(regExPatterns['Samsung'], 0)
 
 #get current working dir
 mypath = os.getcwd()
