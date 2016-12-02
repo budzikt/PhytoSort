@@ -7,7 +7,9 @@ import os
 import re
 import glob
 import shutil
-
+import unittest
+import argparse
+import sys
 
 regExPatterns = {'Samsung':'^([0-9]{8})'}
 
@@ -51,11 +53,38 @@ def pictureOrder():
         else:
             print("No pictures with date "+ nameDir[index] + " (names starts with "+ nl + ")")
 
+def IsOdd(n):
+    return n % 2 == 1
+# TESTS 
+class IsOddTests(unittest.TestCase):
 
+    def testOne(self):
+        self.assertTrue(IsOdd(1))
+
+    def testTwo(self):
+        self.assertFalse(IsOdd(2))
+
+
+def mainTest():
+    unittest.main()
+    
+#RUN as script
 if __name__ == "__main__":
     print("\n\n***RUN***\nRun as script with arglist:")
-    import sys
     print(sys.argv)
+    #Parse command line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('path')
+    parser.add_argument('--tr', '-tr',  action='store_true')
+    args =parser.parse_args(sys.argv)
+    
+    print(args)
     #Test suite goes here
-    pictureOrder()
-    pass
+    try:
+        if sys.argv[1] == 'testRun':
+            mainTest()
+    except IndexError:
+        print('No test running')  
+    
+    
+    
