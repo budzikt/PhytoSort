@@ -79,7 +79,11 @@ def testNeeded(argsDict):
         return False
         
 def mainTest():
+    argsTemp = list(sys.argv)
+    del sys.argv[1:]
+    print(argsTemp)
     unittest.main()
+    sys.argv = argsTemp
     
 #RUN as script
 if __name__ == "__main__":
@@ -88,6 +92,7 @@ if __name__ == "__main__":
     #Parse command line arguments
     argMap = parseCmdArgs()
     if(testNeeded(argMap)):
+        print('No required')
         mainTest()
     else:
         print('No test running')  
