@@ -65,25 +65,31 @@ class IsOddTests(unittest.TestCase):
         self.assertFalse(IsOdd(2))
 
 
+def parseCmdArgs():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('path')
+    parser.add_argument('-tr', '-testrun', '-TestRun', action='store_true', dest='tr')
+    args = parser.parse_args(sys.argv)
+    return vars(args)
+    
+def testNeeded(argsDict):
+    if 'tr' in argsDict and argsDict['tr'] == True:
+        return True
+    else:
+        return False
+        
 def mainTest():
     unittest.main()
     
 #RUN as script
 if __name__ == "__main__":
-    print("\n\n***RUN***\nRun as script with arglist:")
+    print("\n\n***RUN AS MAIN***\nRun as script with arglist:")
     print(sys.argv)
     #Parse command line arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument('path')
-    parser.add_argument('--tr', '-tr',  action='store_true')
-    args =parser.parse_args(sys.argv)
-    
-    print(args)
-    #Test suite goes here
-    try:
-        if sys.argv[1] == 'testRun':
-            mainTest()
-    except IndexError:
+    argMap = parseCmdArgs()
+    if(testNeeded(argMap)):
+        mainTest()
+    else:
         print('No test running')  
     
     
