@@ -4,27 +4,23 @@ Created on 30.11.2016
 @author: Tomek
 '''
 import os
-import re
 import glob
 import shutil
 import unittest
 import argparse
 import sys
-
-regExPatterns = {'Samsung':'^([0-9]{8})'}
-
-#To find Samsung-format string
-dateFinder = re._compile(regExPatterns['Samsung'], 0)
+#Local Imports
+import phytoSortPics.configMod  as cfg 
 
 def pictureOrder():
     #get current working dir
     mypath = os.getcwd()
-    #Generator expression to get only files and only jpeg-s
-    onlyfiles = [f for f in os.listdir(mypath) if os.path.isfile(os.path.join(mypath, f)) and f.endswith(".jpg")]
+    onlyfiles = Ps_getFilesWithExt(mypath, 'jpg')
+    dataMatcherRegex = cfg.getMatcher('Samsung')
     nameList = []
     for f in onlyfiles:
         #Pass pictures through regex checker
-        matchObj = dateFinder.match(f)
+        matchObj = dataMatcherRegex.match(f)
         if matchObj != None:
             nameList.append(matchObj.group(0))
     #Remove duplicates from file list
@@ -53,17 +49,24 @@ def pictureOrder():
         else:
             print("No pictures with date "+ nameDir[index] + " (names starts with "+ nl + ")")
 
-def IsOdd(n):
-    return n % 2 == 1
-# TESTS 
+def Ps_getFilesWithExt(mypath, ext):
+    #Generator expression to get only files and only jpeg-s
+    retList = [f for f in os.listdir(mypath) if os.path.isfile(os.path.join(mypath, f)) and f.endswith("."+ext)]
+    return retList
+
+#TESTS TESTS TESTS TESTS
 class IsOddTests(unittest.TestCase):
 
-    def testOne(self):
-        self.assertTrue(IsOdd(1))
-
-    def testTwo(self):
-        self.assertFalse(IsOdd(2))
-
+    def testNameParse(self):
+        myTestPath = os.path.join(os.getcwd(),'TestCases')
+        testList = Ps_getFilesWithExt(myTestPath, 'jpg')
+        self.assertNotEqual(len(testList), 0)
+    
+    def testMatchSamsung(self): 
+        testName = '20161004_063218.jpg'  
+        match = cfg.getMatcher('Samsung')
+        match.match(testName)
+        self.assertNotEqual(match, None)
 
 def parseCmdArgs():
     parser = argparse.ArgumentParser()
@@ -77,25 +80,24 @@ def testNeeded(argsDict):
         return True
     else:
         return False
-        
+
+#Manage argvars to run unittests      
 def mainTest():
     argsTemp = list(sys.argv)
     del sys.argv[1:]
-    print(argsTemp)
     unittest.main()
     sys.argv = argsTemp
     
 #RUN as script
 if __name__ == "__main__":
-    print("\n\n***RUN AS MAIN***\nRun as script with arglist:")
-    print(sys.argv)
+    print("\n\n***RUN AS MAIN***\nRun as script with arglist: " + '\n' + str(sys.argv))
     #Parse command line arguments
     argMap = parseCmdArgs()
     if(testNeeded(argMap)):
-        print('No required')
+        print('Run Unit Tests')
         mainTest()
     else:
         print('No test running')  
-    
+    pictureOrder()
     
     
