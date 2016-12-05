@@ -15,19 +15,18 @@ import phytoSortPics.configMod  as cfg
 def pictureOrder():
     #get current working dir
     mypath = os.getcwd()
-    onlyfiles = Ps_getFilesWithExt(mypath, 'jpg')
-    dataMatcherRegex = cfg.getMatcher('Samsung')
-    nameList = []
-    for f in onlyfiles:
-        #Pass pictures through regex checker
-        matchObj = dataMatcherRegex.match(f)
-        if matchObj != None:
-            nameList.append(matchObj.group(0))
-    #Remove duplicates from file list
-    nameList = list(set(nameList))
+    #get compiled regex matcher against selected fileformat and folder name
+    dataMatcherRegex = cfg.getFileMatcher('Samsung')
+    folderRegex = cfg.getFolderMatcher('Samsung')
+    folderNameTags = 
+    
+    
+    fileList = Ps_getFileListWithExt(mypath, 'jpg')
+    nameList = Ps_getMatchingFiles(fileList,dataMatcherRegex,True)
     nameDir = []
     #generate nice folder names [yyyy-mm-dd]
     for index, fl in enumerate(nameList):
+        folderNamesMatch = folderRegex.match(nameList[index])
         nameDir.append(nameList[index][:4] + '_'+nameList[index][4:6]+'_'+nameList[index][6:8])
         if not os.path.exists(os.path.join(os.getcwd(),nameDir[index])):
             os.makedirs(os.path.join(os.getcwd(), nameDir[index]))
@@ -49,24 +48,50 @@ def pictureOrder():
         else:
             print("No pictures with date "+ nameDir[index] + " (names starts with "+ nl + ")")
 
-def Ps_getFilesWithExt(mypath, ext):
+def Ps_getFileListWithExt(mypath, ext):
     #Generator expression to get only files and only jpeg-s
     retList = [f for f in os.listdir(mypath) if os.path.isfile(os.path.join(mypath, f)) and f.endswith("."+ext)]
     return retList
 
+def Ps_getMatchingFiles(onlyfiles, matcher, remDuplicates = True):
+    nameList = []
+    for f in onlyfiles:
+        #Pass pictures through regex checker
+        matchObj = matcher.match(f)
+        if matchObj != None:
+            nameList.append(matchObj.group(0))
+    #Remove duplicates from file list
+    if remDuplicates:
+        nameList = list(set(nameList))
+    return nameList
+
+def Ps_createFolders(fileList):
+    pass
+
 #TESTS TESTS TESTS TESTS
 class IsOddTests(unittest.TestCase):
 
-    def testNameParse(self):
+    def testGetFileList(self):
         myTestPath = os.path.join(os.getcwd(),'TestCases')
-        testList = Ps_getFilesWithExt(myTestPath, 'jpg')
+        testList = Ps_getFileListWithExt(myTestPath, 'jpg')
         self.assertNotEqual(len(testList), 0)
     
     def testMatchSamsung(self): 
         testName = '20161004_063218.jpg'  
-        match = cfg.getMatcher('Samsung')
+        match = cfg.getFileMatcher('Samsung')
         match.match(testName)
         self.assertNotEqual(match, None)
+    
+    def testMatchingGropuSamsung(self):
+        myTestPath = os.path.join(os.getcwd(),'TestCases')
+        testList = Ps_getFileListWithExt(myTestPath, 'jpg')
+        match = cfg.getFileMatcher('Samsung')
+        mf = Ps_getMatchingFiles(testList, match)
+        self.assertEqual(len(mf), 2)
+        pass
+        
+    def testFolderNaming(self):
+        pass
 
 def parseCmdArgs():
     parser = argparse.ArgumentParser()
